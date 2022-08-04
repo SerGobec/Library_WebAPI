@@ -14,9 +14,12 @@ namespace LibraryAPI.Controllers
         {
             _db = context;
         }
-        public IActionResult Index()
+
+        [HttpGet]
+        [Route("")]
+        public JsonResult Recomended(string? genre)
         {
-            return View();
+            return Json(_db.GetRecomended(genre));
         }
     }
 }
