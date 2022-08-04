@@ -4,6 +4,7 @@ using LibraryAPI.RequestModels;
 using LibraryAPI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Globalization;
 
 namespace LibraryAPI.Controllers
 {
@@ -79,12 +80,23 @@ namespace LibraryAPI.Controllers
         [Route("{id}/rate")]
         public async Task<IActionResult> SaveScore(long id, [FromBody] ScoreRequestModel score)
         {
-            /*if (!TryValidateModel(model)) return StatusCode(400);
-            bool result = await _db.CreateReview(id, model);
-            if (result) return StatusCode(202);
-            return StatusCode(400);*/
-            decimal scoreDec =  decimal.Parse(score.Score);
-            return Content(scoreDec + "");
+            try
+            {
+                if(!_db.ContainBookById(id)) return StatusCode(404, "Can`t find book with this id");
+                CultureInfo culture = new CultureInfo("en-US");
+                decimal scoreDec = Convert.ToDecimal(score.Score, culture);
+                if(scoreDec < 1 || scoreDec > 5) return StatusCode(400, "Score must be between 1 and 5");
+                bool result = await _db.CreateScore(id, scoreDec);
+                if (result)
+                {
+                    return StatusCode(202, "Score seccessfully created or updated.");
+                }
+                else return StatusCode(400);
+            }
+            catch
+            {
+                return StatusCode(400, "Can`t convert score to decimal. Wrong value");
+            }
         }
     }
 }

@@ -148,5 +148,35 @@ namespace LibraryAPI.Services
                 return false;
             }
         }
+
+        public async Task<bool> CreateScore(long id, decimal score)
+        {
+            try
+            {
+                Rating rating = _dbContext.Ratings.Where(el => el.BookId == id).FirstOrDefault();
+                if (rating == null)
+                {
+                    rating = new Rating();
+                    rating.Score = score;
+                    rating.BookId = id;
+                    _dbContext.Add(rating);
+                }
+                else
+                {
+                    rating.Score = score;
+                    _dbContext.Update(score);
+                }
+                await _dbContext.SaveChangesAsync();
+                return true;
+            } catch
+            {
+                return false;
+            }
+        }
+
+        public bool ContainBookById(long id)
+        {
+            return _dbContext.Books.Where(el => el.Id == id).Count() > 0;
+        }
     }
 }
