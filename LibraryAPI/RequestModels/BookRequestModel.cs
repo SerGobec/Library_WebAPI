@@ -5,6 +5,7 @@ namespace LibraryAPI.RequestModels
     public class BookRequestModel
     {
         [Required]
+        [Range(0, Double.MaxValue, ErrorMessage = "Id must be >= 0.")]
         public long Id { get; set; }
         [Required]
         public string Title { get; set; }

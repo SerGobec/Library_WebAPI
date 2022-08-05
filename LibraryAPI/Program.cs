@@ -12,6 +12,7 @@ builder.Services.AddDbContext<LibraryDbContext>(opt =>
     opt.UseInMemoryDatabase("LibraryDB"));
 
 builder.Services.AddScoped<ILibraryDbService, LibraryDbService>();
+builder.Services.AddSingleton<IContextLogger, LoggerService>();
 
 var app = builder.Build();
 
@@ -23,7 +24,12 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-//app.UseAuthorization();
+app.Use(async (context, next) =>
+{
+    IContextLogger logger = app.Services.GetService<IContextLogger>();
+    if (logger != null) await logger.WriteToLog(context);
+    await next.Invoke();
+});
 
 app.MapControllers();
 

@@ -164,11 +164,11 @@ namespace LibraryAPI.Services
                 else
                 {
                     rating.Score = score;
-                    _dbContext.Update(score);
+                    _dbContext.Update(rating);
                 }
                 await _dbContext.SaveChangesAsync();
                 return true;
-            } catch
+            } catch (Exception ex)
             {
                 return false;
             }
