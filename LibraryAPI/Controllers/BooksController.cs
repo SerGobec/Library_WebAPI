@@ -28,18 +28,16 @@ namespace LibraryAPI.Controllers
 
         [HttpGet]
         [Route("{id?}")]
-        public JsonResult GetBookDetail(int id)
+        public IActionResult GetBookDetail(int id)
         {
             if (id < 0)
             {
-                HttpContext.Response.StatusCode = 400;
-                return Json("id can not be less then 0");
+                return StatusCode(400, "id can not be less then 0");
             }
             BookDetailsDTO bookDetailsDTO = _db.GetBookDetails(id);
             if (bookDetailsDTO == null)
             {
-                HttpContext.Response.StatusCode = 404;
-                return Json(null);
+                return StatusCode(404, "Book with this id not found.");
             } else
             {
                 return Json(bookDetailsDTO);
@@ -50,30 +48,30 @@ namespace LibraryAPI.Controllers
         [Route("{id?}/{secret?}")]
         public async Task<IActionResult> DeleteBook(long id, string secret)
         {
-            if (!_db.CheckPassword(secret)) return StatusCode(405);
+            if (!_db.CheckPassword(secret)) return StatusCode(405, "Wrong password");
             bool result = await _db.DeleteBookAsync(id, secret);
-            if (!result) return StatusCode(404);
-            return StatusCode(202);
+            if (!result) return StatusCode(404, "Book not found.");
+            return StatusCode(202, "Successfuly deleted");
         }
 
         [HttpPost]
         [Route("save")]
         public async Task<IActionResult> SaveBook([FromBody]BookRequestModel model)
         {
-            if (!TryValidateModel(model)) return StatusCode(400);
+            if (!TryValidateModel(model)) return StatusCode(400, "Invalid model");
             bool result = await _db.CreateBook(model);
-            if(result) return StatusCode(202);
-            return StatusCode(400);
+            if(result) return StatusCode(202, "Succesfully saved!");
+            return StatusCode(400, "Save failed.");
         }
 
         [HttpPut]
         [Route("{id}/review")]
         public async Task<IActionResult> SaveReview(long id, [FromBody] ReviewRequestModel model)
         {
-            if (!TryValidateModel(model)) return StatusCode(400);
+            if (!TryValidateModel(model)) return StatusCode(400, "Invalid model");
             bool result = await _db.CreateReview(id, model);
-            if (result) return StatusCode(202);
-            return StatusCode(400);
+            if (result) return StatusCode(202, "Succesfully saved!");
+            return StatusCode(400, "Save failed.");
         }
 
         [HttpPut]

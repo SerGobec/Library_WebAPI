@@ -30,7 +30,7 @@ namespace LibraryAPI.Services
                 books.Add(dto);
             }
             if (order != null && order.ToLower() == "title") books = books.OrderBy(el => el.Title).ToList();
-            if (order != null && order.ToLower() == "authot") books = books.OrderBy(el => el.Author).ToList();
+            if (order != null && order.ToLower() == "author") books = books.OrderBy(el => el.Author).ToList();
             return books;
         }
 
@@ -64,14 +64,13 @@ namespace LibraryAPI.Services
             if (genre != null) books = books.Where(el => el.Genre.ToLower().Contains(genre.ToLower())).ToList();
             foreach (Book book in books)
             {
-                resultArr.Add(new BookDTO()
-                {
-                    Author = book.Author,
-                    Id = book.Id,
-                    Title = book.Title,
-                    Rating = book.Rating.Score,
-                    ReviewsNumber = book.Reviews.Count
-                });
+                BookDTO bookDTO = new BookDTO();
+                bookDTO.Author = book.Author;
+                bookDTO.Id = book.Id;
+                bookDTO.Title = book.Title;
+                if (book.Rating != null) bookDTO.Rating = book.Rating.Score;
+                if (book.Reviews != null) bookDTO.ReviewsNumber = book.Reviews.Count;
+                resultArr.Add(bookDTO);
             }
             resultArr = resultArr.OrderByDescending(el => el.Rating).ToList();
             if (resultArr.Count > 10) resultArr = resultArr.Take(10).ToList();
